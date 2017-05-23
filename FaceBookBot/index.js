@@ -8,8 +8,12 @@
 const 
   request = require('request');
 
-const PAGE_ACCESS_TOKEN = "PAGE_ACCESS_TOKEN from FB"
-const VERIFY_TOKEN = "VERIFY_TOKEN from FB"
+const PAGE_ACCESS_TOKEN = "PAGE_ACCESS_TOKEN from FB";
+const VERIFY_TOKEN = "VERIFY_TOKEN from FB";
+
+const COMMAND_HELP = "help";
+const COMMAND_TODAY = "today";
+const COMMAND_COMMANDS = "?";
 
 var simulation = false;
 
@@ -20,6 +24,7 @@ function civ2heb_v1(day, month, year) {
 exports.simulation = simulation;
 exports.HebrewCalendarBot = function HebrewCalendarBot(req, res) {
 	simulation = this.simulation
+	
 	if (req.method === 'GET') {
       console.log('Received a verify request with token', req.query['hub.verify_token']);
       if (req.query['hub.verify_token'] === VERIFY_TOKEN) {
@@ -27,7 +32,7 @@ exports.HebrewCalendarBot = function HebrewCalendarBot(req, res) {
       }
       return res.send('Error, wrong validation token');
   }
-  
+    
   var data = req.body;
   if (data.object === 'page') {
   	data.entry.forEach(function(entry) {
@@ -38,7 +43,9 @@ exports.HebrewCalendarBot = function HebrewCalendarBot(req, res) {
       entry.messaging.forEach(function(event) {
         if (event.message) {
           receivedMessage(event);
-        } else {
+        } else if (event.postback) {
+			receivedPostback(event);
+		}else {
           console.log("Webhook received unknown event: ", event);
         }
       });
@@ -53,6 +60,34 @@ exports.HebrewCalendarBot = function HebrewCalendarBot(req, res) {
 function receivedMessage0(event) { 
   // Putting a stub for now, we'll expand it in the following steps
   console.log("Message data: ", event.message);
+}
+
+function receivedPostback(event) {
+  var senderID = event.sender.id;
+  var recipientID = event.recipient.id;
+  var timeOfMessage = event.timestamp;
+  var postback = event.postback;
+
+  console.log("Received postback for user '%d' and page '%d' at '%d' with message:", senderID, recipientID, timeOfMessage);
+  console.log("Postback: " + JSON.stringify(postback));
+
+  var commandText = postback.payload;
+  if (commandText) {
+	switch (commandText.toLowerCase()) {
+		case COMMAND_HELP:
+			sendTextMessage(senderID, "Hebrew Calendar Bot\nCommands:\n help\tShow help\n ?\tList of commands\n today\tHebrew date");
+			break;
+	  	case COMMAND_TODAY:
+	    	sendTodayMessage(senderID);
+			break;
+	  	case COMMAND_COMMANDS:
+	    	sendCommandsMessage(senderID);
+			break;
+    	default:
+		console.warn("unknown command: '%s'", commandText)
+        	sendTextMessage(senderID, "echo: " + messageText);		
+	}  
+  }
 }
 
 function receivedMessage(event) {
@@ -76,13 +111,14 @@ function receivedMessage(event) {
       case 'generic':
         sendGenericMessage(senderID);
         break;
-	  case 'help':
-	  case '?':
-	  case '-h':
-		sendTextMessage(senderID, "Hebrew Calendar Bot\nCommands:\n -h, help, ? \n today");
+	  case COMMAND_HELP:
+		sendTextMessage(senderID, "Hebrew Calendar Bot\nCommands:\n help\tShow help\n ?\tList of commands\n today\tHebrew date");
 		break;
-	  case 'today':
-	    sendHCalendarMessage(senderID);
+	  case COMMAND_TODAY:
+	    sendTodayMessage(senderID);
+		break;
+	  case COMMAND_COMMANDS:
+	    sendCommandsMessage(senderID);
 		break;
       default:
         sendTextMessage(senderID, "echo: " + messageText);
@@ -111,7 +147,7 @@ function sendTextMessage(recipientId, messageText) {
   callSendAPI(messageData);
 }
 
-function sendHCalendarMessage(recipientId){
+function sendTodayMessage(recipientId){
 	var uDate = new Date();
 	var tday = uDate.getDate();
 	var tmonth = uDate.getMonth() + 1;
@@ -120,10 +156,47 @@ function sendHCalendarMessage(recipientId){
 	var hebDate = civ2heb_v1(tday, tmonth, tyear);
 	var currentData = hebDateToString(hebDate);
 
-	sendTextMessage(recipientId, ""+currentData)
+	sendTextMessage(recipientId, currentData)
+}
+
+function sendCommandsMessage(recipientId){
+	var messageData = {
+    	recipient: {
+      		id: recipientId
+    	},
+    	message: {
+      		attachment: {
+				  type: "template",
+				  "payload":{
+        			"template_type":"button",
+        			"text":"What do you want to do next?",
+        			"buttons":[
+          				{
+            				"type":"postback",
+            				"title":"Commands",
+            				"payload":COMMAND_COMMANDS
+          				},
+          				{
+            				"type":"postback",
+            				"title":"Today",
+            				"payload":COMMAND_TODAY
+          				},
+          				{
+            				"type":"postback",
+            				"title":"Help",
+            				"payload":COMMAND_HELP
+          				},
+        			]
+      			}
+			}
+    	}
+  	};
+
+  callSendAPI(messageData);
 }
 
 function callSendAPI(messageData) {
+	console.log("response: " + JSON.stringify(messageData));
 	if (simulation)
 		return;
   request({
