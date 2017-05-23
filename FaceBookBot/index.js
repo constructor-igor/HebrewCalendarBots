@@ -11,11 +11,15 @@ const
 const PAGE_ACCESS_TOKEN = "PAGE_ACCESS_TOKEN from FB"
 const VERIFY_TOKEN = "VERIFY_TOKEN from FB"
 
+var simulation = false;
+
 function civ2heb_v1(day, month, year) {
 	return civ2heb(day, month, year);
 }
 
+exports.simulation = simulation;
 exports.HebrewCalendarBot = function HebrewCalendarBot(req, res) {
+	simulation = this.simulation
 	if (req.method === 'GET') {
       console.log('Received a verify request with token', req.query['hub.verify_token']);
       if (req.query['hub.verify_token'] === VERIFY_TOKEN) {
@@ -57,7 +61,7 @@ function receivedMessage(event) {
   var timeOfMessage = event.timestamp;
   var message = event.message;
 
-  console.log("Received message for user %d and page %d at %d with message:", senderID, recipientID, timeOfMessage);
+  console.log("Received message for user '%d' and page '%d' at '%d' with message:", senderID, recipientID, timeOfMessage);
   console.log("Message: " + JSON.stringify(message));
 
   var messageId = message.mid;
@@ -77,7 +81,7 @@ function receivedMessage(event) {
 	  case '-h':
 		sendTextMessage(senderID, "Hebrew Calendar Bot\nCommands:\n -h, help, ? 	Help message");
 		break;
-	  case 'hcalendar':
+	  case 'today':
 	    sendHCalendarMessage(senderID);
 		break;
       default:
@@ -93,7 +97,7 @@ function sendGenericMessage(recipientId, messageText) {
 }
 
 function sendTextMessage(recipientId, messageText) {
-	console.log("Response '%s' for user %d", messageText, recipientId);
+	console.log("Response '%s' for user '%d'", messageText, recipientId);
   	
 	var messageData = {
     	recipient: {
@@ -120,6 +124,8 @@ function sendHCalendarMessage(recipientId){
 }
 
 function callSendAPI(messageData) {
+	if (simulation)
+		return;
   request({
     uri: 'https://graph.facebook.com/v2.6/me/messages',
     qs: { access_token: PAGE_ACCESS_TOKEN },
