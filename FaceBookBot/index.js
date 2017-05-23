@@ -57,9 +57,8 @@ function receivedMessage(event) {
   var timeOfMessage = event.timestamp;
   var message = event.message;
 
-  console.log("Received message for user %d and page %d at %d with message:", 
-    senderID, recipientID, timeOfMessage);
-  console.log(JSON.stringify(message));
+  console.log("Received message for user %d and page %d at %d with message:", senderID, recipientID, timeOfMessage);
+  console.log("Message: " + JSON.stringify(message));
 
   var messageId = message.mid;
 
@@ -67,7 +66,6 @@ function receivedMessage(event) {
   var messageAttachments = message.attachments;
 
   if (messageText) {
-
     // If we receive a text message, check to see if it matches a keyword
     // and send back the example. Otherwise, just echo the text we received.
     switch (messageText) {
@@ -95,14 +93,16 @@ function sendGenericMessage(recipientId, messageText) {
 }
 
 function sendTextMessage(recipientId, messageText) {
-  var messageData = {
-    recipient: {
-      id: recipientId
-    },
-    message: {
-      text: messageText
-    }
-  };
+	console.log("Response '%s' for user %d", messageText, recipientId);
+  	
+	var messageData = {
+    	recipient: {
+      		id: recipientId
+    	},
+    	message: {
+      		text: messageText
+    	}
+  	};
 
   callSendAPI(messageData);
 }
