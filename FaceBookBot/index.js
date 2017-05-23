@@ -72,14 +72,14 @@ function receivedMessage(event) {
   if (messageText) {
     // If we receive a text message, check to see if it matches a keyword
     // and send back the example. Otherwise, just echo the text we received.
-    switch (messageText) {
+    switch (messageText.toLowerCase()) {
       case 'generic':
         sendGenericMessage(senderID);
         break;
 	  case 'help':
 	  case '?':
 	  case '-h':
-		sendTextMessage(senderID, "Hebrew Calendar Bot\nCommands:\n -h, help, ? 	Help message");
+		sendTextMessage(senderID, "Hebrew Calendar Bot\nCommands:\n -h, help, ? \n today");
 		break;
 	  case 'today':
 	    sendHCalendarMessage(senderID);
@@ -137,8 +137,7 @@ function callSendAPI(messageData) {
       var recipientId = body.recipient_id;
       var messageId = body.message_id;
 
-      console.log("Successfully sent generic message with id %s to recipient %s", 
-        messageId, recipientId);
+      console.log("Successfully sent generic message with id %s to recipient %s", messageId, recipientId);
     } else {
       console.error("Unable to send message.");
       console.error(response);
