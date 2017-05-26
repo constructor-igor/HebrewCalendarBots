@@ -1,3 +1,5 @@
+var request = require('request');
+
 var bot = require('./index.js');
 bot.simulation = true;
 
