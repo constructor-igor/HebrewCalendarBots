@@ -15,6 +15,7 @@ const VERIFY_TOKEN = "VERIFY_TOKEN from FB";
 const COMMAND_HELP = "help";
 const COMMAND_TODAY = "today";
 const COMMAND_COMMANDS = "?";
+const HELP_MESSAGE = "Hebrew Calendar Bot\nCommands:\n * help\tShow help\n * ?\tList of commands\n * today\tHebrew date\n * c <date>\t Convert to Hebrew date";
 
 var simulation = false;
 
@@ -76,7 +77,7 @@ function receivedPostback(event) {
   if (commandText) {
 	switch (commandText.toLowerCase()) {
 		case COMMAND_HELP:
-			sendTextMessage(senderID, "Hebrew Calendar Bot\nCommands:\n * help\tShow help\n * ?\tList of commands\n * today\tHebrew date\n * c <date>\t Convert to Hebrew date");
+			sendTextMessage(senderID, HELP_MESSAGE);
 			break;
 	  	case COMMAND_TODAY:
 	    	sendTodayMessage(senderID, timeOfMessage);
@@ -113,7 +114,7 @@ function receivedMessage(event) {
         sendGenericMessage(senderID);
         break;
 	  case COMMAND_HELP:
-		sendTextMessage(senderID, "Hebrew Calendar Bot\nCommands:\n help\tShow help\n ?\tList of commands\n today\tHebrew date");
+		sendTextMessage(senderID, HELP_MESSAGE);
 		break;
 	  case COMMAND_TODAY:
 	    sendTodayMessage(senderID, timeOfMessage);		
