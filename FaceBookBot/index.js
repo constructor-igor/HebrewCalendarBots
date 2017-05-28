@@ -15,7 +15,7 @@ const VERIFY_TOKEN = "VERIFY_TOKEN from FB";
 const COMMAND_HELP = "help";
 const COMMAND_TODAY = "today";
 const COMMAND_COMMANDS = "?";
-const HELP_MESSAGE = "Hebrew Calendar Bot\nCommands:\n * help\tShow help\n * ?\tList of commands\n * today\tHebrew date\n * c <date>\t Convert to Hebrew date";
+const HELP_MESSAGE = "Hebrew Calendar Bot\nCommands:\n * help\t - Show help\n * ?\t - List of commands\n * today\t - Hebrew date\n * c <date>\t - Convert to Hebrew date";
 
 var simulation = false;
 
