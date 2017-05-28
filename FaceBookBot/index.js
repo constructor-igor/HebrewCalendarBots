@@ -177,10 +177,7 @@ function convertGrigorianToHebrew(recipientId, user_input, timeOfMessage){
             	function (error, response, body) {
                 	if (!error && response.statusCode == 200) {
 						var message = "Hebrew Date: " + body.hd + " " + body.hm + " " + body.hy;
-						var events = "events: " + body.events;
-                    	console.log(message);
-                    	console.log(events);
-						
+						var events = "Events: " + body.events;
 						sendTextMessage(recipientId, message + "\n" + events);
                 	}
             	}
