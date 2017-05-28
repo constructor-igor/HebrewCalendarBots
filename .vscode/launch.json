@@ -8,14 +8,14 @@
         "type": "node",
         "request": "launch",
         "name": "Launch Program",
-        "program": "${workspaceRoot}/chrono-samples.js",
+        "program": "${workspaceRoot}/nodejs-start.js",
         "runtimeExecutable": "C:\\Program Files\\nodejs\\node.exe"
     },
         {
             "type": "node",
             "request": "launch",
             "name": "Launch Program",
-            "program": "${workspaceRoot}/FaceBookBot/chrono-samples.js",
+            "program": "${workspaceRoot}/FaceBookBot/nodejs-start.js",
             "runtimeExecutable": "C:\\Program Files\\nodejs\\node.exe"
         }
     ]

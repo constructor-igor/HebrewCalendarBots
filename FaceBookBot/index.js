@@ -6,7 +6,8 @@
  */
 
 const 
-  request = require('request');
+	request = require('request'),
+ 	chrono = require('chrono-node');
 
 const PAGE_ACCESS_TOKEN = "PAGE_ACCESS_TOKEN from FB";
 const VERIFY_TOKEN = "VERIFY_TOKEN from FB";
@@ -65,20 +66,20 @@ function receivedMessage0(event) {
 function receivedPostback(event) {
   var senderID = event.sender.id;
   var recipientID = event.recipient.id;
-  var timeOfMessage = event.timestamp;
+  var timeOfMessage = new Date(event.timestamp);
   var postback = event.postback;
 
-  console.log("Received postback for user '%d' and page '%d' at '%d' with message:", senderID, recipientID, timeOfMessage);
-  console.log("Postback: " + JSON.stringify(postback));
+  console.log("Received postback for user '%d' and page '%d' at '%s' with message:", senderID, recipientID, timeOfMessage);
+  console.log(JSON.stringify(postback));
 
   var commandText = postback.payload;
   if (commandText) {
 	switch (commandText.toLowerCase()) {
 		case COMMAND_HELP:
-			sendTextMessage(senderID, "Hebrew Calendar Bot\nCommands:\n help\tShow help\n ?\tList of commands\n today\tHebrew date");
+			sendTextMessage(senderID, "Hebrew Calendar Bot\nCommands:\n * help\tShow help\n * ?\tList of commands\n * today\tHebrew date\n * c <date>\t Convert to Hebrew date");
 			break;
 	  	case COMMAND_TODAY:
-	    	sendTodayMessage(senderID);
+	    	sendTodayMessage(senderID, timeOfMessage);
 			break;
 	  	case COMMAND_COMMANDS:
 	    	sendCommandsMessage(senderID);
@@ -93,11 +94,11 @@ function receivedPostback(event) {
 function receivedMessage(event) {
   var senderID = event.sender.id;
   var recipientID = event.recipient.id;
-  var timeOfMessage = event.timestamp;
+  var timeOfMessage = new Date(event.timestamp);
   var message = event.message;
 
-  console.log("Received message for user '%d' and page '%d' at '%d' with message:", senderID, recipientID, timeOfMessage);
-  console.log("Message: " + JSON.stringify(message));
+  console.log("Received message for user '%d' and page '%d' at '%s' with message:", senderID, recipientID, timeOfMessage);
+  console.log(JSON.stringify(message));
 
   var messageId = message.mid;
 
@@ -115,14 +116,14 @@ function receivedMessage(event) {
 		sendTextMessage(senderID, "Hebrew Calendar Bot\nCommands:\n help\tShow help\n ?\tList of commands\n today\tHebrew date");
 		break;
 	  case COMMAND_TODAY:
-	    sendTodayMessage(senderID);
+	    sendTodayMessage(senderID, timeOfMessage);		
 		break;
 	  case COMMAND_COMMANDS:
 	    sendCommandsMessage(senderID);
 		break;
       default:
 	  	if (messageText.toLowerCase().startsWith("c ")){
-			  convertGrigorianToHebrew(senderID, messageText);
+			convertGrigorianToHebrew(senderID, messageText, timeOfMessage);
 		  } else {
         	sendTextMessage(senderID, "echo: " + messageText);
 		  }
@@ -151,15 +152,22 @@ function sendTextMessage(recipientId, messageText) {
   callSendAPI(messageData);
 }
 
-function convertGrigorianToHebrew(recipientId, user_input){
+function convertGrigorianToHebrew(recipientId, user_input, timeOfMessage){
 	user_input = user_input.toLowerCase();
-	if (user_input.startsWith("c ")) {    
-    	var items = user_input.split(" ");
-    	if (items[0] == "c" && items.length == 4){
-        	var g_year = items[1];
-        	var g_month = items[2];
-        	var g_day = items[3];
+	if (user_input.startsWith("c ")) {
 
+    	// var items = user_input.split(" ");
+    	// if (items[0] == "c" && items.length == 4){
+        	// var g_year = items[1];
+        	// var g_month = items[2];
+        	// var g_day = items[3];
+
+		user_input.substring(2, user_input.length);
+		var user_date = chrono.parseDate(user_input, timeOfMessage)
+		if (user_date!=null) {
+    		var g_year = user_date.getFullYear();
+    		var g_month = user_date.getMonth() + 1;
+    		var g_day = user_date.getDate();
         	var requestConvertDate = "http://www.hebcal.com/converter/?cfg=json&gy="+g_year+"&gm="+g_month+"&gd="+g_day+"&g2h=1"
 
         	request.post(
@@ -180,16 +188,17 @@ function convertGrigorianToHebrew(recipientId, user_input){
 	}
 }
 
-function sendTodayMessage(recipientId){
-	var uDate = new Date();
-	var tday = uDate.getDate();
-	var tmonth = uDate.getMonth() + 1;
-	var tyear = uDate.getFullYear();
+function sendTodayMessage(recipientId, timeOfMessage){
+	convertGrigorianToHebrew(recipientId, "c today", timeOfMessage)
 
-	var hebDate = civ2heb_v1(tday, tmonth, tyear);
-	var currentData = hebDateToString(hebDate);
+	// var tday = timeOfMessage.getDate();
+	// var tmonth = timeOfMessage.getMonth() + 1;
+	// var tyear = timeOfMessage.getFullYear();
 
-	sendTextMessage(recipientId, currentData)
+	// var hebDate = civ2heb_v1(tday, tmonth, tyear);
+	// var currentData = hebDateToString(hebDate);
+
+	// sendTextMessage(recipientId, currentData)
 }
 
 function sendCommandsMessage(recipientId){
