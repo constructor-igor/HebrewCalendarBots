@@ -23,6 +23,11 @@ function getTime(offset)
 // console.log("local_datetime: " + local_datetime)
 console.log(getTime(3));
 
+var issue_test_date = new Date(1495979370142); // 2017-05-28, ~16:50
+console.log("Friday: ", chrono.parseDate('Friday', issue_test_date));
+console.log("next Friday: ", chrono.parseDate('next Friday', issue_test_date));
+console.log("previous Friday: ", chrono.parseDate('previous Friday', issue_test_date));
+console.log();
 
 var test_date = new Date(1495979370142); // 2017-05-28, ~16:50
 var t_month = test_date.getMonth() + 1;
