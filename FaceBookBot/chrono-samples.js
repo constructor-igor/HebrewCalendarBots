@@ -1,5 +1,29 @@
 var chrono = require('chrono-node')
 
+function getTime(offset)
+        {
+            var d = new Date();
+            localTime = d.getTime();
+            localOffset = d.getTimezoneOffset() * 60000;
+
+            // obtain UTC time in msec
+            utc = localTime + localOffset;
+            // create new Date object for different city
+            // using supplied offset
+            var nd = new Date(utc + (3600000*offset));
+            //nd = 3600000 + nd;
+            utc = new Date(utc);
+            // return time as a string
+            console.log("time: " + nd);
+            console.log(nd.toLocaleString());
+            console.log(utc.toLocaleString());
+        }
+
+// var local_datetime = new Date().toLocaleString("en-US", {timeZone: "Jerusalem Daylight Time"});
+// console.log("local_datetime: " + local_datetime)
+console.log(getTime(3));
+
+
 var test_date = new Date(1495979370142); // 2017-05-28, ~16:50
 var t_month = test_date.getMonth() + 1;
 console.log("test_date: " + test_date)

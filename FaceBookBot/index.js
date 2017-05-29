@@ -14,8 +14,9 @@ const VERIFY_TOKEN = "VERIFY_TOKEN from FB";
 
 const COMMAND_HELP = "help";
 const COMMAND_TODAY = "today";
+const COMMAND_JERUSALEM = "jerusalem";
 const COMMAND_COMMANDS = "?";
-const HELP_MESSAGE = "Hebrew Calendar Bot\nCommands:\n * help\t - Show help\n * ?\t - List of commands\n * today\t - Hebrew date\n * c <date>\t - Convert to Hebrew date";
+const HELP_MESSAGE = "Hebrew Calendar Bot\nCommands:\n * help\t - Show help\n * ?\t - List of commands\n * today\t - Hebrew date\n * Jerusalem\t - Jerusalem's date\n * c <date>\t - Convert to Hebrew date";
 
 var simulation = false;
 
@@ -82,6 +83,9 @@ function receivedPostback(event) {
 	  	case COMMAND_TODAY:
 	    	sendTodayMessage(senderID, timeOfMessage);
 			break;
+	  	case COMMAND_JERUSALEM:
+	    	sendJerusalemDate(senderID);
+			break;
 	  	case COMMAND_COMMANDS:
 	    	sendCommandsMessage(senderID);
 			break;
@@ -118,6 +122,9 @@ function receivedMessage(event) {
 		break;
 	  case COMMAND_TODAY:
 	    sendTodayMessage(senderID, timeOfMessage);		
+		break;
+	  case COMMAND_JERUSALEM:
+	    sendJerusalemDate(senderID);
 		break;
 	  case COMMAND_COMMANDS:
 	    sendCommandsMessage(senderID);
@@ -198,6 +205,10 @@ function sendTodayMessage(recipientId, timeOfMessage){
 
 	// sendTextMessage(recipientId, currentData)
 }
+function sendJerusalemDate(recipientId){
+	var JerusalemTime = getLocalTime(+3);
+	convertGrigorianToHebrew(recipientId, "c " + JerusalemTime)
+}
 
 function sendCommandsMessage(recipientId){
 	var messageData = {
@@ -213,19 +224,19 @@ function sendCommandsMessage(recipientId){
         			"buttons":[
           				{
             				"type":"postback",
-            				"title":"Commands",
-            				"payload":COMMAND_COMMANDS
-          				},
-          				{
-            				"type":"postback",
             				"title":"Today",
             				"payload":COMMAND_TODAY
           				},
           				{
             				"type":"postback",
+            				"title":"Jerusalem",
+            				"payload":COMMAND_JERUSALEM
+          				},
+          				{
+            				"type":"postback",
             				"title":"Help",
             				"payload":COMMAND_HELP
-          				},
+          				}
         			]
       			}
 			}
@@ -252,13 +263,27 @@ function callSendAPI(messageData) {
 
       console.log("Successfully sent generic message with id %s to recipient %s", messageId, recipientId);
     } else {
-      console.error("Unable to send message.");
-      console.error(response);
-      console.error(error);
+      console.error("Unable to send message (statusCode=%d).", response.statusCode);
+      console.error("response: \n" + JSON.stringify(response));
+	  console.error("body: \n" + JSON.stringify(body));
+	  if (error)
+      	console.error("error:" + JSON.stringify(error));
     }
   });
 }
 
+function getLocalTime(offset) {
+	var d = new Date();
+    localTime = d.getTime();
+    localOffset = d.getTimezoneOffset() * 60000;
+
+    // obtain UTC time in msec
+    utc = localTime + localOffset;
+    // create new Date object for different city
+    // using supplied offset
+    var nd = new Date(utc + (3600000*offset));
+	return nd;
+}
 
 /* kdate.js - Kaluach Javascript Hebrew date routines
  *   Version 0.03 (beta release)
