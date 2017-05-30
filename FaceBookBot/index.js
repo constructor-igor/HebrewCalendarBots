@@ -176,8 +176,12 @@ function convertGrigorianToHebrew(recipientId, user_input, timeOfMessage){
     		var g_year = user_date.getFullYear();
     		var g_month = user_date.getMonth() + 1;
     		var g_day = user_date.getDate();
-        	var requestConvertDate = "http://www.hebcal.com/converter/?cfg=json&gy="+g_year+"&gm="+g_month+"&gd="+g_day+"&g2h=1"
 
+			var now_date = new Date()
+        	var now_year = now_date.getFullYear();
+        	var years_difference = now_year - g_year;
+
+        	var requestConvertDate = "http://www.hebcal.com/converter/?cfg=json&gy="+g_year+"&gm="+g_month+"&gd="+g_day+"&g2h=1"
         	request.post(
             	requestConvertDate,
             	{ json: { key: 'value' } },
@@ -185,7 +189,36 @@ function convertGrigorianToHebrew(recipientId, user_input, timeOfMessage){
                 	if (!error && response.statusCode == 200) {
 						var message = "Hebrew Date: " + body.hd + " " + body.hm + " " + body.hy;
 						var events = "Events: " + body.events;
-						sendTextMessage(recipientId, message + "\n" + events);
+						//sendTextMessage(recipientId, message + "\n" + events);
+						var fullMessage = message + "\n" + events;
+						
+						if (years_difference == 0) {
+							sendTextMessage(recipientId, fullMessage);
+						} else {
+                        	var h_year = body.hy + years_difference;
+                        	var h_month = body.hm;
+                        	var h_day = body.hd;
+
+							var requestConvertToGregorianDate = "http://www.hebcal.com/converter/?cfg=json&hy="+h_year+"&hm="+h_month+"&hd="+h_day+"&h2g=1";
+							console.log("Convert to Gregorian date: " + requestConvertToGregorianDate);
+                        	request.post(requestConvertToGregorianDate,
+                            	{ json: { key: 'value' } },
+                            	function (error, response, body) {
+                                	if (!error && response.statusCode == 200) {
+                                    	var thisYearDate = new Date(body.gy, body.gm, body.gd);
+                                    	var thisYearMessage = "Gregorian Date (this year): " + thisYearDate.toDateString() + "\nEvents: " + body.events;
+										sendTextMessage(recipientId, fullMessage + "\n" + thisYearMessage);
+                                	} else{
+										sendTextMessage(recipientId, fullMessage);
+      									console.error("Unable to send message (statusCode=%d).", response.statusCode);
+      									console.error("response: \n" + JSON.stringify(response));
+	  									console.error("body: \n" + JSON.stringify(body));
+	  									if (error)
+      										console.error("error:" + JSON.stringify(error));
+									}
+                            	}
+                        	)
+						}						
                 	}
             	}
         	); 

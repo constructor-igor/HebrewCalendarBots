@@ -1,6 +1,7 @@
 var request = require('request');
 
-var user_input = "c 2017 05 26";
+//var user_input = "c 2017 05 30";
+var user_input = "c 1914 08 01";
 
 user_input = user_input.toLowerCase();
 if (user_input.startsWith("c ")) {    
@@ -10,17 +11,42 @@ if (user_input.startsWith("c ")) {
         var g_month = items[2];
         var g_day = items[3];
 
-        var requestConvertDate = "http://www.hebcal.com/converter/?cfg=json&gy="+g_year+"&gm="+g_month+"&gd="+g_day+"&g2h=1"
+        var definedDate = new Date(g_year, g_month-1, g_day);
+        console.log("Defined date: ", definedDate.toDateString());
 
+        var now_date = new Date()
+        var now_year = now_date.getFullYear();
+        var years_difference = now_year - g_year;
+        if (years_difference!=0) {
+            console.log("Defined year: %d, current year: %d", g_year, now_year)
+        } 
+
+        var requestConvertDate = "http://www.hebcal.com/converter/?cfg=json&gy="+g_year+"&gm="+g_month+"&gd="+g_day+"&g2h=1"
         request.post(
             requestConvertDate,
             { json: { key: 'value' } },
             function (error, response, body) {
                 if (!error && response.statusCode == 200) {
-                    console.log("events: " + body.events)
-                    console.log("Hebrew Date: " + body.hd + " " + body.hm + " " + body.hy)
+                    console.log("Hebrew Date: " + body.hd + " " + body.hm + " " + body.hy + " Events: " + body.events);
+
+                    if (years_difference!=0) {
+                        var h_year = body.hy + years_difference;
+                        var h_month = body.hm;
+                        var h_day = body.hd;
+
+                        var requestConvertDate = "http://www.hebcal.com/converter/?cfg=json&hy="+h_year+"&hm="+h_month+"&hd="+h_day+"&h2g=1";
+                        request.post(requestConvertDate,
+                            { json: { key: 'value' } },
+                            function (error, response, body) {
+                                if (!error && response.statusCode == 200) {
+                                    var thisYearDate = new Date(body.gy, body.gm, body.gd);
+                                    console.log("Gregorian Date (this year): " + thisYearDate.toDateString() + ", Events: " + body.events);
+                                }
+                            }
+                        )
+                    }
                 }
             }
-        ); 
+        );
     }
 }

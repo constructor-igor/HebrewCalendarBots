@@ -4,18 +4,19 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+
     {
         "type": "node",
         "request": "launch",
         "name": "Launch Program",
-        "program": "${workspaceRoot}/chrono-samples.js",
+        "program": "${workspaceRoot}/nodejs-start.js",
         "runtimeExecutable": "C:\\Program Files\\nodejs\\node.exe"
     },
         {
             "type": "node",
             "request": "launch",
             "name": "Launch Program",
-            "program": "${workspaceRoot}/FaceBookBot/chrono-samples.js",
+            "program": "${workspaceRoot}/FaceBookBot/nodejs-start.js",
             "runtimeExecutable": "C:\\Program Files\\nodejs\\node.exe"
         }
     ]
