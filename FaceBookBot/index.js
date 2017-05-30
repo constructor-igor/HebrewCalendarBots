@@ -87,11 +87,11 @@ function receivedPostback(event) {
 	    	sendJerusalemDate(senderID);
 			break;
 	  	case COMMAND_COMMANDS:
-	    	sendCommandsMessage(senderID);
+	    	sendCommandsMessage(senderID, "What do you want to do next?");
 			break;
     	default:
-		console.warn("unknown command: '%s'", commandText)
-        	sendTextMessage(senderID, "echo: " + messageText);		
+			console.warn("unknown command: '%s'", commandText)
+			sendCommandsMessage(senderID, "Unexpected command. Please, use a next option:");
 	}  
   }
 }
@@ -127,13 +127,13 @@ function receivedMessage(event) {
 	    sendJerusalemDate(senderID);
 		break;
 	  case COMMAND_COMMANDS:
-	    sendCommandsMessage(senderID);
+	    sendCommandsMessage(senderID, "What do you want to do next?");
 		break;
       default:
 	  	if (messageText.toLowerCase().startsWith("c ")){
 			convertGrigorianToHebrew(senderID, messageText, timeOfMessage);
 		  } else {
-        	sendTextMessage(senderID, "echo: " + messageText);
+			sendCommandsMessage(senderID, "Bot did not understand this message. Please, select a option:");
 		  }
     }
   } else if (messageAttachments) {
@@ -243,7 +243,7 @@ function sendJerusalemDate(recipientId){
 	convertGrigorianToHebrew(recipientId, "c " + JerusalemTime)
 }
 
-function sendCommandsMessage(recipientId){
+function sendCommandsMessage(recipientId, menuCaption){
 	var messageData = {
     	recipient: {
       		id: recipientId
@@ -253,7 +253,7 @@ function sendCommandsMessage(recipientId){
 				  type: "template",
 				  "payload":{
         			"template_type":"button",
-        			"text":"What do you want to do next?",
+        			"text": menuCaption,
         			"buttons":[
           				{
             				"type":"postback",
