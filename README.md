@@ -2,7 +2,7 @@
 **Hebrew Calendar bots**
 
 Hebrew Calendat bot uses:
-- [Jewish holiday calendars & Hebrew date converter **Hebcal**](https://www.hebcal.com/)
-- [A natural language date parser in Javascript **chrono**](https://github.com/wanasit/chrono)
+- [**Hebcal** - Jewish holiday calendars & Hebrew date converter](https://www.hebcal.com/)
+- [**chrono** - A natural language date parser in Javascript](https://github.com/wanasit/chrono)
 
 
