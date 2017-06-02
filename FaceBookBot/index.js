@@ -202,7 +202,7 @@ function convertGrigorianToHebrew(recipientId, user_date){
                             	{ json: { key: 'value' } },
                             	function (error, response, body) {
                                 	if (!error && response.statusCode == 200) {
-                                    	var thisYearDate = new Date(body.gy, body.gm, body.gd);
+                                    	var thisYearDate = new Date(body.gy, body.gm-1, body.gd);
                                     	var thisYearMessage = "Gregorian Date (this year): " + thisYearDate.toDateString() + "\nEvents: " + body.events;
 										sendTextMessage(recipientId, fullMessage + "\n" + thisYearMessage);
                                 	} else{
