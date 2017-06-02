@@ -16,7 +16,7 @@ const COMMAND_HELP = "help";
 const COMMAND_TODAY = "today";
 const COMMAND_JERUSALEM = "jerusalem";
 const COMMAND_COMMANDS = "?";
-const HELP_MESSAGE = "Hebrew Calendar Bot\nCommands:\n * help\t - Show help\n * ?\t - List of commands\n * today\t - Hebrew date\n * Jerusalem\t - Jerusalem's date\n * c <date>\t - Convert to Hebrew date";
+const HELP_MESSAGE = "Hebrew Calendar Bot\nCommands:\n * help\t - Show help\n * ?\t - List of commands\n * today\t - Hebrew date\n * Jerusalem\t - Jerusalem's date\n * <date>\t - Convert to Hebrew date";
 
 var simulation = false;
 
@@ -130,9 +130,11 @@ function receivedMessage(event) {
 	    sendCommandsMessage(senderID, "What do you want to do next?");
 		break;
       default:
-	  	if (messageText.toLowerCase().startsWith("c ")){
-			convertGrigorianToHebrew(senderID, messageText, timeOfMessage);
-		  } else {
+	  	//if (messageText.toLowerCase().startsWith("c ")){
+	  	if (isTextContainsDate(messageText, timeOfMessage)) {
+			  var user_date = chrono.parseDate(messageText, timeOfMessage)
+			  convertGrigorianToHebrew(senderID, user_date);
+		  }	else {
 			sendCommandsMessage(senderID, "Bot did not understand this message. Please, select a option:");
 		  }
     }
@@ -160,19 +162,14 @@ function sendTextMessage(recipientId, messageText) {
   callSendAPI(messageData);
 }
 
-function convertGrigorianToHebrew(recipientId, user_input, timeOfMessage){
-	user_input = user_input.toLowerCase();
-	if (user_input.startsWith("c ")) {
+function isTextContainsDate(text, timeOfMessage){
+	var user_date = chrono.parseDate(text, timeOfMessage)
+	return user_date != null;
+}
 
-    	// var items = user_input.split(" ");
-    	// if (items[0] == "c" && items.length == 4){
-        	// var g_year = items[1];
-        	// var g_month = items[2];
-        	// var g_day = items[3];
-
-		user_input.substring(2, user_input.length);
-		var user_date = chrono.parseDate(user_input, timeOfMessage)
-		if (user_date!=null) {
+function convertGrigorianToHebrew(recipientId, user_date){
+		// var user_date = chrono.parseDate(user_input, timeOfMessage)
+		// if (user_date!=null) {
     		var g_year = user_date.getFullYear();
     		var g_month = user_date.getMonth() + 1;
     		var g_day = user_date.getDate();
@@ -222,25 +219,17 @@ function convertGrigorianToHebrew(recipientId, user_input, timeOfMessage){
                 	}
             	}
         	); 
-    	}
-	}
+    	// }
+	// }
 }
 
 function sendTodayMessage(recipientId, timeOfMessage){
-	convertGrigorianToHebrew(recipientId, "c today", timeOfMessage)
-
-	// var tday = timeOfMessage.getDate();
-	// var tmonth = timeOfMessage.getMonth() + 1;
-	// var tyear = timeOfMessage.getFullYear();
-
-	// var hebDate = civ2heb_v1(tday, tmonth, tyear);
-	// var currentData = hebDateToString(hebDate);
-
-	// sendTextMessage(recipientId, currentData)
+	var user_date = chrono.parseDate("today", timeOfMessage)
+	convertGrigorianToHebrew(recipientId, user_date)
 }
 function sendJerusalemDate(recipientId){
 	var JerusalemTime = getLocalTime(+3);
-	convertGrigorianToHebrew(recipientId, "c " + JerusalemTime)
+	convertGrigorianToHebrew(recipientId, JerusalemTime)
 }
 
 function sendCommandsMessage(recipientId, menuCaption){

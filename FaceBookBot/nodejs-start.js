@@ -20,7 +20,11 @@ var res = new MyResponse();
 // req.body = {object:"page", entry:[{id:"id", time:"time", messaging:[event]}]}
 // bot.HebrewCalendarBot(req, res)
 
-// var event = {message:{mid:"mid", text:"today"}, sender:{id:"1"}, recipient:{id:"2"}, timestamp:"100"}
+var event = {message:{mid:"mid", text:"today"}, sender:{id:"1"}, recipient:{id:"2"}, timestamp:"2017-06-02T14:01:27.525128983Z"}
+req.body = {object:"page", entry:[{id:"id", time:"time", messaging:[event]}]}
+bot.HebrewCalendarBot(req, res)
+
+// var event = {message:{mid:"mid", text:"tomorrow"}, sender:{id:"1"}, recipient:{id:"2"}, timestamp:"100"}
 // req.body = {object:"page", entry:[{id:"id", time:"time", messaging:[event]}]}
 // bot.HebrewCalendarBot(req, res)
 
@@ -36,6 +40,6 @@ var res = new MyResponse();
 // req.body = {object:"page", entry:[{id:"id", time:"time", messaging:[event]}]}
 // bot.HebrewCalendarBot(req, res)
 
-var event = {message:{mid:"mid", text:"c 1914/08/01"}, sender:{id:"1"}, recipient:{id:"2"}, timestamp:"100"}
-req.body = {object:"page", entry:[{id:"id", time:"time", messaging:[event]}]}
-bot.HebrewCalendarBot(req, res)
+// var event = {message:{mid:"mid", text:"1914/08/01"}, sender:{id:"1"}, recipient:{id:"2"}, timestamp:"100"}
+// req.body = {object:"page", entry:[{id:"id", time:"time", messaging:[event]}]}
+// bot.HebrewCalendarBot(req, res)
