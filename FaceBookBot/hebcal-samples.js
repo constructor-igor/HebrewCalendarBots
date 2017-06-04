@@ -1,24 +1,35 @@
 var request = require('request');
 
 // var requestSample = "http://www.hebcal.com/shabbat/?cfg=json&m=0&geo=city&city=IL-Jerusalem"
-var requestSample = "http://www.hebcal.com/shabbat/?cfg=json&m=0&geo=city&city=IL-Modiin"
+var requestSample = "http://www.hebcal.com/shabbat/?cfg=json&m=50&geo=city&city=IL-Modiin"
 //var requestSample = "http://www.hebcal.com/shabbat/?cfg=json&m=0&b=18&geo=zip&zip=90210"
 //var requestSample = "http://www.hebcal.com/hebcal/?v=1&cfg=json&maj=on&min=on&mod=on&nx=on&year=now&month=x&ss=on&mf=on&c=on&geo=geoname&geonameid=3448439&m=50&s=on"
+
+function PostShabbatMessage(message){
+    console.log(message)
+}
+
 request.get(requestSample,
-    { json: { key: 'value' } },
+    { json: { } },
         function (error, response, body) {
         if (!error && response.statusCode == 200) {
             if (!body.error) {
-                console.log("Title: " + body.title);
-                console.log("Date: " + body.date);
-                body.items.forEach(function(element) {
-                    console.log(element.category + ": " + element.title)
-                }, this);
+                // console.log("Title: " + body.title);
+                // console.log("Date: " + body.date);
+                // body.items.forEach(function(element) {
+                //     console.log(element.category + ": " + element.title)
+                // }, this);
                 candlesItem = body.items.find(function(value, index){
                     return value.category == "candles"                
                 });
-                console.log("candles: " + JSON.stringify(candlesItem))
+                havdalahItem = body.items.find(function(value, index){
+                    return value.category == "havdalah"                
+                }); 
+                //console.log("candles: " + JSON.stringify(candlesItem));
+                //var message = "candles: " + candlesItem.date.toDateString() + ", " + candlesItem.title;
+                var message = candlesItem.title + ", " + havdalahItem.title;
                 //console.log(JSON.stringify(body));
+                PostShabbatMessage(message);
             } else{
                 console.warn("error: " + body.error);
             }
