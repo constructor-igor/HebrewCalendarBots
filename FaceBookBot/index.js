@@ -133,10 +133,10 @@ function receivedMessage(event) {
 	  	//if (messageText.toLowerCase().startsWith("c ")){
 	  	if (isTextContainsDate(messageText, timeOfMessage)) {
 			  var user_date = chrono.parseDate(messageText, timeOfMessage)
-			  convertGrigorianToHebrew(senderID, user_date);
-		  }	else {
-			sendCommandsMessage(senderID, "Bot did not understand this message. Please, select a option:");
-		  }
+			  convertGrigorianToHebrew(senderID, user_date, sendTextMessage);
+			}	else {
+				sendCommandsMessage(senderID, "Bot did not understand this message. Please, select a option:");
+			}
     }
   } else if (messageAttachments) {
     sendTextMessage(senderID, "Message with attachment received");
@@ -167,69 +167,68 @@ function isTextContainsDate(text, timeOfMessage){
 	return user_date != null;
 }
 
-function convertGrigorianToHebrew(recipientId, user_date){
-		// var user_date = chrono.parseDate(user_input, timeOfMessage)
-		// if (user_date!=null) {
-    		var g_year = user_date.getFullYear();
-    		var g_month = user_date.getMonth() + 1;
-    		var g_day = user_date.getDate();
+function convertGrigorianToHebrew(recipientId, user_date, onCompleteMessage){
+	var g_year = user_date.getFullYear();
+    var g_month = user_date.getMonth() + 1;
+    var g_day = user_date.getDate();
 
-			var now_date = new Date()
-        	var now_year = now_date.getFullYear();
-        	var years_difference = now_year - g_year;
+	var now_date = new Date()
+    var now_year = now_date.getFullYear();
+    var years_difference = now_year - g_year;
 
-        	var requestConvertDate = "http://www.hebcal.com/converter/?cfg=json&gy="+g_year+"&gm="+g_month+"&gd="+g_day+"&g2h=1"
-        	request.post(
-            	requestConvertDate,
-            	{ json: { key: 'value' } },
-            	function (error, response, body) {
-                	if (!error && response.statusCode == 200) {
-						var message = "Hebrew Date: " + body.hd + " " + body.hm + " " + body.hy;
-						var events = "Events: " + body.events;
-						//sendTextMessage(recipientId, message + "\n" + events);
-						var fullMessage = message + "\n" + events;
+    var requestConvertDate = "http://www.hebcal.com/converter/?cfg=json&gy="+g_year+"&gm="+g_month+"&gd="+g_day+"&g2h=1"
+	request.post(
+    	requestConvertDate,
+        { json: { key: 'value' } },
+        function (error, response, body) {
+        	if (!error && response.statusCode == 200) {
+				var message = "Hebrew Date: " + body.hd + " " + body.hm + " " + body.hy;
+				var events = "Events: " + body.events;
+				//sendTextMessage(recipientId, message + "\n" + events);
+				var fullMessage = message + "\n" + events;
 						
-						if (years_difference == 0) {
-							sendTextMessage(recipientId, fullMessage);
-						} else {
-                        	var h_year = body.hy + years_difference;
-                        	var h_month = body.hm;
-                        	var h_day = body.hd;
+				if (years_difference == 0) {
+					//sendTextMessage(recipientId, fullMessage);
+					onCompleteMessage(recipientId, fullMessage)
+				} else {
+                	var h_year = body.hy + years_difference;
+                    var h_month = body.hm;
+                    var h_day = body.hd;
 
-							var requestConvertToGregorianDate = "http://www.hebcal.com/converter/?cfg=json&hy="+h_year+"&hm="+h_month+"&hd="+h_day+"&h2g=1";
-							console.log("Convert to Gregorian date: " + requestConvertToGregorianDate);
-                        	request.post(requestConvertToGregorianDate,
-                            	{ json: { key: 'value' } },
-                            	function (error, response, body) {
-                                	if (!error && response.statusCode == 200) {
-                                    	var thisYearDate = new Date(body.gy, body.gm-1, body.gd);
-                                    	var thisYearMessage = "Gregorian Date (this year): " + thisYearDate.toDateString() + "\nEvents: " + body.events;
-										sendTextMessage(recipientId, fullMessage + "\n" + thisYearMessage);
-                                	} else{
-										sendTextMessage(recipientId, fullMessage);
-      									console.error("Unable to send message (statusCode=%d).", response.statusCode);
-      									console.error("response: \n" + JSON.stringify(response));
-	  									console.error("body: \n" + JSON.stringify(body));
-	  									if (error)
-      										console.error("error:" + JSON.stringify(error));
-									}
-                            	}
-                        	)
-						}						
-                	}
-            	}
-        	); 
-    	// }
-	// }
+					var requestConvertToGregorianDate = "http://www.hebcal.com/converter/?cfg=json&hy="+h_year+"&hm="+h_month+"&hd="+h_day+"&h2g=1";
+					console.log("Convert to Gregorian date: " + requestConvertToGregorianDate);
+                    request.post(requestConvertToGregorianDate,
+                    { json: { key: 'value' } },
+                    function (error, response, body) {
+                    	if (!error && response.statusCode == 200) {
+                        	var thisYearDate = new Date(body.gy, body.gm-1, body.gd);
+                            var thisYearMessage = "Gregorian Date (this year): " + thisYearDate.toDateString() + "\nEvents: " + body.events;
+							//sendTextMessage(recipientId, fullMessage + "\n" + thisYearMessage);
+							onCompleteMessage(recipientId, fullMessage + "\n" + thisYearMessage);
+                        } else{
+							//sendTextMessage(recipientId, fullMessage);
+							onCompleteMessage(recipientId, fullMessage);
+      						console.error("Unable to send message (statusCode=%d).", response.statusCode);
+      						console.error("response: \n" + JSON.stringify(response));
+	  						console.error("body: \n" + JSON.stringify(body));
+	  						if (error)
+      							console.error("error:" + JSON.stringify(error));
+						}
+                    })
+				}						
+			}
+		}
+	);
 }
 
 function sendTodayMessage(recipientId, timeOfMessage){
 	var user_date = chrono.parseDate("today", timeOfMessage)
-	convertGrigorianToHebrew(recipientId, user_date)
+	convertGrigorianToHebrew(recipientId, user_date, sendTextMessage)
 }
 function sendJerusalemDate(recipientId){
 	var JerusalemTime = getLocalTime(+3);
-	convertGrigorianToHebrew(recipientId, JerusalemTime)
+	convertGrigorianToHebrew(recipientId, JerusalemTime, sendTextMessage)
+	//var requestSample = "http://www.hebcal.com/shabbat/?cfg=json&m=50&geo=city&city=IL-Modiin"
 }
 
 function sendCommandsMessage(recipientId, menuCaption){
