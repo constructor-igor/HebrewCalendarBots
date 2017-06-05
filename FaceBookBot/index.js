@@ -186,11 +186,12 @@ function parseLocation(recipientId, user_date, onCompleteMessage) {
 
 				var requestSample = "http://www.hebcal.com/shabbat/?cfg=json&m=50&geo=pos&latitude="+lat+"&longitude="+lng+"&tzid=Asia/Jerusalem"
 				request.get(requestSample, { json: { } }, function (error, response, body) {
+					message = null
 					if (!error && response.statusCode == 200) {
 						if (!body.error) {
 							candlesItem = body.items.find(function(value, index) {return value.category == "candles" });
-							message = location_address + ", " + candlesItem.title
-						}	
+							message = location_address + "; " + candlesItem.title
+						}
 					}
 					//sendTextMessage(recipientId, message)
 					onCompleteMessage(message)
