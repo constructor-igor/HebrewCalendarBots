@@ -40,10 +40,13 @@ var res = new MyResponse();
 // req.body = {object:"page", entry:[{id:"id", time:"time", messaging:[event]}]}
 // bot.HebrewCalendarBot(req, res)
 
-var event = {message:{mid:"mid", text:"Jerusalem"}, sender:{id:"1"}, recipient:{id:"2"}, timestamp:"100"}
+// var event = {message:{mid:"mid", text:"Jerusalem"}, sender:{id:"1"}, recipient:{id:"2"}, timestamp:"100"}
+// req.body = {object:"page", entry:[{id:"id", time:"time", messaging:[event]}]}
+// bot.HebrewCalendarBot(req, res)
+
+var event = {message:{mid:"mid", text:"Modiin"}, sender:{id:"1"}, recipient:{id:"2"}, timestamp:"100"}
 req.body = {object:"page", entry:[{id:"id", time:"time", messaging:[event]}]}
 bot.HebrewCalendarBot(req, res)
-
 // var event = {message:{mid:"mid", text:"1914/08/01"}, sender:{id:"1"}, recipient:{id:"2"}, timestamp:"100"}
 // req.body = {object:"page", entry:[{id:"id", time:"time", messaging:[event]}]}
 // bot.HebrewCalendarBot(req, res)

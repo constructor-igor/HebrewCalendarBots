@@ -134,8 +134,14 @@ function receivedMessage(event) {
 	  	if (isTextContainsDate(messageText, timeOfMessage)) {
 			  var user_date = chrono.parseDate(messageText, timeOfMessage)
 			  convertGrigorianToHebrew(senderID, user_date, sendTextMessage);
-			}	else {
-				sendCommandsMessage(senderID, "Bot did not understand this message. Please, select a option:");
+			} else {
+				parseLocation(senderID, messageText, function(message) {
+					if (!message)
+						sendCommandsMessage(senderID, "Bot did not understand this message. Please, select a option:");
+					else{
+						sendTextMessage(senderID, message);
+					}
+				})				
 			}
     }
   } else if (messageAttachments) {
@@ -165,6 +171,36 @@ function sendTextMessage(recipientId, messageText) {
 function isTextContainsDate(text, timeOfMessage){
 	var user_date = chrono.parseDate(text, timeOfMessage)
 	return user_date != null;
+}
+
+function parseLocation(recipientId, user_date, onCompleteMessage) {
+	var requestLocation = "http://maps.google.com/maps/api/geocode/json?address=" + user_date
+	request.post(requestLocation, {}, function(error, response, body){
+		if (!error && response.statusCode == 200) {
+			var bodyObject = JSON.parse(body)
+			var detectedLocation = bodyObject.results[0].address_components[0].types[0] == "locality"
+			if (detectedLocation){
+				var location_address = bodyObject.results[0].formatted_address
+				var lat = bodyObject.results[0].geometry.location.lat
+				var lng = bodyObject.results[0].geometry.location.lng
+
+				var requestSample = "http://www.hebcal.com/shabbat/?cfg=json&m=50&geo=pos&latitude="+lat+"&longitude="+lng+"&tzid=Asia/Jerusalem"
+				request.get(requestSample, { json: { } }, function (error, response, body) {
+					if (!error && response.statusCode == 200) {
+						if (!body.error) {
+							candlesItem = body.items.find(function(value, index) {return value.category == "candles" });
+							message = location_address + ", " + candlesItem.title
+						}	
+					}
+					//sendTextMessage(recipientId, message)
+					onCompleteMessage(message)
+					return;
+				})
+			} else
+			onCompleteMessage(null)
+		} else
+			onCompleteMessage(null)
+	})
 }
 
 function convertGrigorianToHebrew(recipientId, user_date, onCompleteMessage){
