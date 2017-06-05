@@ -227,8 +227,21 @@ function sendTodayMessage(recipientId, timeOfMessage){
 }
 function sendJerusalemDate(recipientId){
 	var JerusalemTime = getLocalTime(+3);
-	convertGrigorianToHebrew(recipientId, JerusalemTime, sendTextMessage)
-	//var requestSample = "http://www.hebcal.com/shabbat/?cfg=json&m=50&geo=city&city=IL-Modiin"
+
+	convertGrigorianToHebrew(recipientId, JerusalemTime, function(recipientId, message){
+		var requestSample = "http://www.hebcal.com/shabbat/?cfg=json&m=50&geo=city&city=IL-Jerusalem"
+		request.get(requestSample,
+    		{ json: { } },
+        	function (error, response, body) {
+				if (!error && response.statusCode == 200) {
+					if (!body.error) {
+						candlesItem = body.items.find(function(value, index) {return value.category == "candles" });
+						message = message + ", " + candlesItem.title
+					}
+				}
+				sendTextMessage(recipientId, message)
+			})
+	})
 }
 
 function sendCommandsMessage(recipientId, menuCaption){
