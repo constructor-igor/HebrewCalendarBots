@@ -178,7 +178,9 @@ function parseLocation(recipientId, user_date, onCompleteMessage) {
 	request.post(requestLocation, {}, function(error, response, body){
 		if (!error && response.statusCode == 200) {
 			var bodyObject = JSON.parse(body)
-			var detectedLocation = bodyObject.results[0].address_components[0].types[0] == "locality"
+			var result0 = bodyObject.results[0]
+			var detectedLocation = result0.address_components[0].types[0] == "locality"
+			var inIsrael = result0.address_components[result0.address_components.length-1].long_name == "Israel"
 			if (detectedLocation){
 				var location_address = bodyObject.results[0].formatted_address
 				var lat = bodyObject.results[0].geometry.location.lat
