@@ -1,6 +1,7 @@
 # HebrewCalendarBots
 **Hebrew Calendar bots**
 
+[Hebrew Calendae Bot on Facebook Messenger](https://www.facebook.com/HebrewCalendarBot)
 [Hebrew Calendar Bot on BotList](https://botlist.co/bots/3058-hebrew-calendar-bot)
 
 Hebrew calendar bot allows to convert Gregorian date to Hebrew date (including back converting to Gregorian date in the current year).
